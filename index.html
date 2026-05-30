@@ -3,73 +3,78 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>IMEI Scanner Inventory</title>
+<title>Barcode Inventory</title>
 <script src="https://unpkg.com/html5-qrcode"></script>
 <style>
 body{
-font-family:-apple-system,sans-serif;
-background:#0f172a;
-color:white;
-padding:15px;
+    margin:0;
+    padding:20px;
+    background:#0f172a;
+    color:white;
+    font-family:-apple-system,sans-serif;
 }
 .container{
-max-width:600px;
-margin:auto;
+    max-width:600px;
+    margin:auto;
+}
+h1{
+    text-align:center;
 }
 button{
-width:100%;
-padding:12px;
-margin-top:10px;
-border:none;
-border-radius:10px;
-background:#22d3ee;
-font-weight:bold;
+    width:100%;
+    padding:14px;
+    border:none;
+    border-radius:12px;
+    background:#22d3ee;
+    color:black;
+    font-weight:bold;
+    margin-top:10px;
 }
 input{
-width:100%;
-padding:12px;
-margin-top:8px;
-border:none;
-border-radius:10px;
-box-sizing:border-box;
-}
-.card{
-background:#1e293b;
-padding:15px;
-margin-top:15px;
-border-radius:12px;
+    width:100%;
+    padding:12px;
+    margin-top:8px;
+    border:none;
+    border-radius:10px;
+    box-sizing:border-box;
 }
 #reader{
-margin-top:15px;
-border-radius:12px;
-overflow:hidden;
+    margin-top:15px;
+}
+.card{
+    background:#1e293b;
+    padding:15px;
+    border-radius:12px;
+    margin-top:15px;
+}
+.hidden{
+    display:none;
 }
 </style>
 </head>
 <body>
 <div class="container">
-<h2>📱 IMEI Inventory Scanner</h2>
+<h1>📱 Inventory Scanner</h1>
 <button onclick="startScanner()">
-📷 Scan IMEI Barcode
+📷 Scan Barcode / QR
 </button>
 <div id="reader"></div>
 <div id="result"></div>
-<div id="form" style="display:none;">
-<input id="model" placeholder="Model">
-<input id="ram" placeholder="RAM + Storage">
+<div id="addForm" class="hidden">
+<input id="ram" placeholder="RAM (e.g. 8GB)">
+<input id="storage" placeholder="Storage (e.g. 256GB)">
 <input id="price" placeholder="Price">
 <button onclick="saveDevice()">
-Save Device
+💾 Save Device
 </button>
 </div>
 </div>
 <script>
-let currentIMEI = "";
+let currentCode = "";
 let inventory =
 JSON.parse(localStorage.getItem("inventory")) || {};
 function startScanner(){
-const scanner =
-new Html5Qrcode("reader");
+const scanner = new Html5Qrcode("reader");
 scanner.start(
 { facingMode: "environment" },
 {
@@ -77,49 +82,63 @@ fps:10,
 qrbox:250
 },
 function(decodedText){
-currentIMEI = decodedText;
+currentCode = decodedText;
 scanner.stop();
-checkIMEI(decodedText);
+lookupCode(decodedText);
 },
 function(error){}
 );
 }
-function checkIMEI(imei){
+function lookupCode(code){
 const result =
 document.getElementById("result");
-if(inventory[imei]){
-const d = inventory[imei];
+if(inventory[code]){
+const d = inventory[code];
 result.innerHTML = `
 <div class="card">
-<h3>${d.model}</h3>
-<p>RAM: ${d.ram}</p>
-<p>Price: ${d.price}</p>
-<p>IMEI: ${imei}</p>
+<h3>Device Found</h3>
+<p><b>RAM:</b> ${d.ram}</p>
+<p><b>Storage:</b> ${d.storage}</p>
+<p><b>Price:</b> ${d.price}</p>
 </div>
 `;
-document.getElementById("form").style.display="none";
+document
+.getElementById("addForm")
+.classList.add("hidden");
 }else{
 result.innerHTML = `
 <div class="card">
-New IMEI Detected:<br>
-${imei}
+<b>New Barcode Detected</b><br>
+Add details below.
 </div>
 `;
-document.getElementById("form").style.display="block";
+document
+.getElementById("addForm")
+.classList.remove("hidden");
 }
 }
 function saveDevice(){
-inventory[currentIMEI] = {
-model:document.getElementById("model").value,
-ram:document.getElementById("ram").value,
-price:document.getElementById("price").value
+const ram =
+document.getElementById("ram").value.trim();
+const storage =
+document.getElementById("storage").value.trim();
+const price =
+document.getElementById("price").value.trim();
+if(!ram || !storage || !price){
+alert("Fill all fields");
+return;
+}
+inventory[currentCode] = {
+ram: ram,
+storage: storage,
+price: price
 };
 localStorage.setItem(
 "inventory",
 JSON.stringify(inventory)
 );
-alert("Saved");
-checkIMEI(currentIMEI);
+alert("Saved Successfully");
+lookupCode(currentCode);
 }
 </script>
 </body>
