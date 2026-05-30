@@ -1,145 +1,333 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Barcode Inventory</title>
-<script src="https://unpkg.com/html5-qrcode"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OPPO Price Finder</title>
+
 <style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,sans-serif;
+}
+
 body{
-    margin:0;
-    padding:20px;
-    background:#0f172a;
-    color:white;
-    font-family:-apple-system,sans-serif;
+background:#050816;
+color:white;
+padding:20px;
 }
+
 .container{
-    max-width:600px;
-    margin:auto;
+max-width:500px;
+margin:auto;
 }
-h1{
-    text-align:center;
+
+.logo{
+width:120px;
+display:block;
+margin:auto;
+margin-bottom:10px;
 }
-button{
-    width:100%;
-    padding:14px;
-    border:none;
-    border-radius:12px;
-    background:#22d3ee;
-    color:black;
-    font-weight:bold;
-    margin-top:10px;
+
+.title{
+text-align:center;
+font-size:28px;
+font-weight:bold;
+margin-bottom:20px;
+color:#00ffcc;
 }
-input{
-    width:100%;
-    padding:12px;
-    margin-top:8px;
-    border:none;
-    border-radius:10px;
-    box-sizing:border-box;
+
+.search-box{
+background:#111827;
+padding:15px;
+border-radius:20px;
+margin-bottom:20px;
 }
-#reader{
-    margin-top:15px;
+
+.search-box input{
+width:100%;
+padding:14px;
+border:none;
+border-radius:12px;
+background:#1e293b;
+color:white;
+font-size:16px;
+outline:none;
 }
+
+.search-box button{
+width:100%;
+padding:14px;
+margin-top:12px;
+border:none;
+border-radius:12px;
+background:#00ffcc;
+color:black;
+font-size:16px;
+font-weight:bold;
+cursor:pointer;
+}
+
+.results{
+display:flex;
+flex-direction:column;
+gap:15px;
+}
+
 .card{
-    background:#1e293b;
-    padding:15px;
-    border-radius:12px;
-    margin-top:15px;
+background:#111827;
+padding:18px;
+border-radius:20px;
+border:1px solid #1f2937;
 }
-.hidden{
-    display:none;
+
+.phone-name{
+font-size:20px;
+font-weight:bold;
+color:#00ffcc;
+}
+
+.storage{
+margin-top:10px;
+font-size:14px;
+color:#cbd5e1;
+}
+
+.price{
+margin-top:15px;
+font-size:26px;
+font-weight:bold;
+color:#a3ff12;
+}
+
+.not-found{
+text-align:center;
+padding:30px;
+background:#111827;
+border-radius:20px;
+}
+
+.suggestions{
+display:flex;
+gap:10px;
+flex-wrap:wrap;
+margin-bottom:20px;
+}
+
+.chip{
+background:#1e293b;
+padding:8px 14px;
+border-radius:30px;
+font-size:13px;
+cursor:pointer;
+}
+
+.footer{
+text-align:center;
+margin-top:30px;
+font-size:12px;
+color:#64748b;
 }
 </style>
 </head>
+
 <body>
+
 <div class="container">
-<h1>📱 Inventory Scanner</h1>
-<button onclick="startScanner()">
-📷 Scan Barcode / QR
-</button>
-<div id="reader"></div>
-<div id="result"></div>
-<div id="addForm" class="hidden">
-<input id="ram" placeholder="RAM (e.g. 8GB)">
-<input id="storage" placeholder="Storage (e.g. 256GB)">
-<input id="price" placeholder="Price">
-<button onclick="saveDevice()">
-💾 Save Device
-</button>
+
+<img class="logo"
+src="https://upload.wikimedia.org/wikipedia/commons/7/7a/OPPO_LOGO_2019.svg">
+
+<div class="title">
+OPPO PRICE FINDER
 </div>
+
+<div class="search-box">
+
+<input
+type="text"
+id="searchInput"
+placeholder="Search OPPO phone...">
+
+<button id="searchBtn">
+🔍 Search
+</button>
+
 </div>
+
+<div class="suggestions">
+
+<div class="chip" onclick="quickSearch('reno')">
+Reno
+</div>
+
+<div class="chip" onclick="quickSearch('f33')">
+F33
+</div>
+
+<div class="chip" onclick="quickSearch('a6')">
+A6
+</div>
+
+<div class="chip" onclick="quickSearch('6s')">
+6S
+</div>
+
+</div>
+
+<div class="results" id="results"></div>
+
+<div class="footer">
+OPPO Mobile Price Guide 2026
+</div>
+
+</div>
+
 <script>
-let currentCode = "";
-let inventory =
-JSON.parse(localStorage.getItem("inventory")) || {};
-function startScanner(){
-const scanner = new Html5Qrcode("reader");
-scanner.start(
-{ facingMode: "environment" },
+
+const phones = [
+
 {
-fps:10,
-qrbox:250
+name:"OPPO Reno 15 C 5G",
+ram:"8GB + 256GB",
+price:"₹42,500"
 },
-function(decodedText){
-currentCode = decodedText;
-scanner.stop();
-lookupCode(decodedText);
+
+{
+name:"OPPO Reno 15 5G",
+ram:"12GB + 512GB",
+price:"₹56,500"
 },
-function(error){}
-);
+
+{
+name:"OPPO Reno 15 Pro Mini",
+ram:"12GB + 256GB",
+price:"₹61,500"
+},
+
+{
+name:"OPPO F33 Pro 5G",
+ram:"8GB + 128GB",
+price:"₹38,500"
+},
+
+{
+name:"OPPO F33 Pro 5G",
+ram:"8GB + 256GB",
+price:"₹41,500"
+},
+
+{
+name:"OPPO F33 5G",
+ram:"8GB + 128GB",
+price:"₹35,500"
+},
+
+{
+name:"OPPO A6 Pro 5G",
+ram:"8GB + 256GB",
+price:"₹30,500"
+},
+
+{
+name:"OPPO A6S 5G",
+ram:"4GB + 128GB",
+price:"₹21,500"
+},
+
+{
+name:"OPPO A6X 5G",
+ram:"4GB + 128GB",
+price:"₹19,500"
+},
+
+{
+name:"OPPO 6S 5G",
+ram:"6GB + 128GB",
+price:"₹23,500"
 }
-function lookupCode(code){
-const result =
-document.getElementById("result");
-if(inventory[code]){
-const d = inventory[code];
-result.innerHTML = `
-<div class="card">
-<h3>Device Found</h3>
-<p><b>RAM:</b> ${d.ram}</p>
-<p><b>Storage:</b> ${d.storage}</p>
-<p><b>Price:</b> ${d.price}</p>
+
+];
+
+const results = document.getElementById("results");
+
+function showPhones(list){
+
+results.innerHTML="";
+
+if(list.length===0){
+
+results.innerHTML=`
+<div class="not-found">
+❌ No Phone Found
 </div>
 `;
-document
-.getElementById("addForm")
-.classList.add("hidden");
-}else{
-result.innerHTML = `
-<div class="card">
-<b>New Barcode Detected</b><br>
-Add details below.
-</div>
-`;
-document
-.getElementById("addForm")
-.classList.remove("hidden");
-}
-}
-function saveDevice(){
-const ram =
-document.getElementById("ram").value.trim();
-const storage =
-document.getElementById("storage").value.trim();
-const price =
-document.getElementById("price").value.trim();
-if(!ram || !storage || !price){
-alert("Fill all fields");
+
 return;
 }
-inventory[currentCode] = {
-ram: ram,
-storage: storage,
-price: price
-};
-localStorage.setItem(
-"inventory",
-JSON.stringify(inventory)
-);
-alert("Saved Successfully");
-lookupCode(currentCode);
+
+list.forEach(phone=>{
+
+results.innerHTML+=`
+
+<div class="card">
+
+<div class="phone-name">
+${phone.name}
+</div>
+
+<div class="storage">
+💾 ${phone.ram}
+</div>
+
+<div class="price">
+${phone.price}
+</div>
+
+</div>
+
+`;
+
+});
+
 }
+
+function searchPhone(){
+
+const value=document
+.getElementById("searchInput")
+.value
+.toLowerCase();
+
+const filtered=phones.filter(phone=>
+phone.name.toLowerCase().includes(value)
+);
+
+showPhones(filtered);
+
+}
+
+function quickSearch(text){
+
+document.getElementById("searchInput").value=text;
+
+searchPhone();
+
+}
+
+document
+.getElementById("searchBtn")
+.addEventListener("click",searchPhone);
+
+document
+.getElementById("searchInput")
+.addEventListener("input",searchPhone);
+
+showPhones(phones);
+
 </script>
+
 </body>
 </html>
