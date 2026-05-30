@@ -3,117 +3,90 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>IMEI Inventory</title>
+<title>Mobile Inventory</title>
 <style>
 body{
-font-family:-apple-system,Arial,sans-serif;
-background:#111827;
-color:white;
-padding:20px;
+    font-family:-apple-system,sans-serif;
+    background:#0f172a;
+    color:white;
+    padding:15px;
+    margin:0;
 }
 .container{
-max-width:500px;
-margin:auto;
+    max-width:600px;
+    margin:auto;
 }
-h2{
-text-align:center;
-color:#00ffcc;
-}
-input{
-width:100%;
-padding:12px;
-margin:6px 0;
-border:none;
-border-radius:10px;
-box-sizing:border-box;
-}
-button{
-width:100%;
-padding:12px;
-margin-top:8px;
-border:none;
-border-radius:10px;
-background:#00ffcc;
-color:black;
-font-weight:bold;
+h1{
+    text-align:center;
+    color:#22d3ee;
 }
 .card{
-background:#1f2937;
-padding:15px;
-margin-top:15px;
-border-radius:12px;
+    background:#1e293b;
+    padding:15px;
+    border-radius:12px;
+    margin-bottom:15px;
 }
-.hidden{
-display:none;
+input{
+    width:100%;
+    padding:12px;
+    margin:5px 0;
+    border:none;
+    border-radius:8px;
+    box-sizing:border-box;
+}
+button{
+    width:100%;
+    padding:12px;
+    border:none;
+    border-radius:8px;
+    margin-top:8px;
+    font-weight:bold;
+    background:#22d3ee;
+    color:black;
+}
+.device{
+    background:#334155;
+    padding:12px;
+    border-radius:10px;
+    margin-top:10px;
 }
 </style>
 </head>
 <body>
 <div class="container">
-<h2>IMEI Inventory</h2>
-<input
-id="imei"
-placeholder="Scan or Enter IMEI">
-<button onclick="searchIMEI()">
-Search IMEI
-</button>
-<div id="saveSection" class="hidden">
-<input id="model" placeholder="Phone Model">
+<h1>📱 Inventory Manager</h1>
+<div class="card">
+<h3>Add Device</h3>
+<input id="imei" placeholder="IMEI Number">
+<input id="model" placeholder="Model">
 <input id="ram" placeholder="RAM + Storage">
 <input id="price" placeholder="Price">
-<button onclick="savePhone()">
+<button onclick="saveDevice()">
 Save Device
 </button>
 </div>
+<div class="card">
+<h3>Search Device</h3>
+<input id="searchImei" placeholder="Enter IMEI">
+<button onclick="searchDevice()">
+Find Device
+</button>
 <div id="result"></div>
+</div>
 </div>
 <script>
 let inventory =
 JSON.parse(localStorage.getItem("inventory")) || {};
-function searchIMEI(){
-const imei =
-document.getElementById("imei").value.trim();
-const result =
-document.getElementById("result");
-if(!imei){
-alert("Enter IMEI");
-return;
-}
-if(inventory[imei]){
-const p = inventory[imei];
-result.innerHTML = `
-<div class="card">
-<h3>${p.model}</h3>
-<p>RAM: ${p.ram}</p>
-<p>Price: ${p.price}</p>
-<p>IMEI: ${imei}</p>
-</div>
-`;
-document
-.getElementById("saveSection")
-.classList.add("hidden");
-}else{
-result.innerHTML =
-"<div class='card'>IMEI Not Found. Add Details Below.</div>";
-document
-.getElementById("saveSection")
-.classList.remove("hidden");
-}
-}
-function savePhone(){
-const imei =
-document.getElementById("imei").value.trim();
-const model =
-document.getElementById("model").value.trim();
-const ram =
-document.getElementById("ram").value.trim();
-const price =
-document.getElementById("price").value.trim();
+function saveDevice(){
+const imei=document.getElementById("imei").value.trim();
+const model=document.getElementById("model").value.trim();
+const ram=document.getElementById("ram").value.trim();
+const price=document.getElementById("price").value.trim();
 if(!imei || !model || !ram || !price){
 alert("Fill all fields");
 return;
 }
-inventory[imei] = {
+inventory[imei]={
 model:model,
 ram:ram,
 price:price
@@ -122,8 +95,34 @@ localStorage.setItem(
 "inventory",
 JSON.stringify(inventory)
 );
-alert("Saved Successfully");
-searchIMEI();
+alert("Device Saved");
+document.getElementById("imei").value="";
+document.getElementById("model").value="";
+document.getElementById("ram").value="";
+document.getElementById("price").value="";
+}
+function searchDevice(){
+const imei=
+document.getElementById("searchImei").value.trim();
+const result=
+document.getElementById("result");
+if(inventory[imei]){
+const d=inventory[imei];
+result.innerHTML=`
+<div class="device">
+<b>Model:</b> ${d.model}<br>
+<b>RAM:</b> ${d.ram}<br>
+<b>Price:</b> ${d.price}<br>
+<b>IMEI:</b> ${imei}
+</div>
+`;
+}else{
+result.innerHTML=`
+<div class="device">
+Device Not Found
+</div>
+`;
+}
 }
 </script>
 </body>
