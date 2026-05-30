@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OPPO Price Finder</title>
+
+<style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,sans-serif;
+}
+
+body{
+background:#050816;
+color:white;
+padding:20px;
+}
+
+.container{
+max-width:500px;
+margin:auto;
+}
+
+.logo{
+width:120px;
+display:block;
+margin:auto;
+margin-bottom:10px;
+}
+
+.title{
+text-align:center;
+font-size:28px;
+font-weight:bold;
+margin-bottom:20px;
+color:#00ffcc;
+}
+
+.search-box{
+background:#111827;
+padding:15px;
+border-radius:20px;
+margin-bottom:20px;
+}
+
+.search-box input{
+width:100%;
+padding:14px;
+border:none;
+border-radius:12px;
+background:#1e293b;
+color:white;
+font-size:16px;
+outline:none;
+}
+
+.search-box button{
+width:100%;
+padding:14px;
+margin-top:12px;
+border:none;
+border-radius:12px;
+background:#00ffcc;
+color:black;
+font-size:16px;
+font-weight:bold;
+cursor:pointer;
+}
+
+.results{
+display:flex;
+flex-direction:column;
+gap:15px;
+}
+
+.card{
+background:#111827;
+padding:18px;
+border-radius:20px;
+border:1px solid #1f2937;
+}
+
+.phone-name{
+font-size:20px;
+font-weight:bold;
+color:#00ffcc;
+}
+
+.storage{
+margin-top:10px;
+font-size:14px;
+color:#cbd5e1;
+}
+
+.price{
+margin-top:15px;
+font-size:26px;
+font-weight:bold;
+color:#a3ff12;
+}
+
+.not-found{
+text-align:center;
+padding:30px;
+background:#111827;
+border-radius:20px;
+}
+
+.suggestions{
+display:flex;
+gap:10px;
+flex-wrap:wrap;
+margin-bottom:20px;
+}
+
+.chip{
+background:#1e293b;
+padding:8px 14px;
+border-radius:30px;
+font-size:13px;
+cursor:pointer;
+}
+
+.footer{
+text-align:center;
+margin-top:30px;
+font-size:12px;
+color:#64748b;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<img class="logo"
+src="https://upload.wikimedia.org/wikipedia/commons/7/7a/OPPO_LOGO_2019.svg">
+
+<div class="title">
+OPPO PRICE FINDER
+</div>
+
+<div class="search-box">
+
+<input
+type="text"
+id="searchInput"
+placeholder="Search OPPO phone...">
+
+<button id="searchBtn">
+🔍 Search
+</button>
+
+</div>
+
+<div class="suggestions">
+
+<div class="chip" onclick="quickSearch('reno')">
+Reno
+</div>
+
+<div class="chip" onclick="quickSearch('f33')">
+F33
+</div>
+
+<div class="chip" onclick="quickSearch('a6')">
+A6
+</div>
+
+<div class="chip" onclick="quickSearch('6s')">
+6S
+</div>
+
+</div>
+
+<div class="results" id="results"></div>
+
+<div class="footer">
+OPPO Mobile Price Guide 2026
+</div>
+
+</div>
+
+<script>
+
+const phones = [
+
+{
+name:"OPPO Reno 15 C 5G",
+ram:"8GB + 256GB",
+price:"₹42,500"
+},
+
+{
+name:"OPPO Reno 15 5G",
+ram:"12GB + 512GB",
+price:"₹56,500"
+},
+
+{
+name:"OPPO Reno 15 Pro Mini",
+ram:"12GB + 256GB",
+price:"₹61,500"
+},
+
+{
+name:"OPPO F33 Pro 5G",
+ram:"8GB + 128GB",
+price:"₹38,500"
+},
+
+{
+name:"OPPO F33 Pro 5G",
+ram:"8GB + 256GB",
+price:"₹41,500"
+},
+
+{
+name:"OPPO F33 5G",
+ram:"8GB + 128GB",
+price:"₹35,500"
+},
+
+{
+name:"OPPO A6 Pro 5G",
+ram:"8GB + 256GB",
+price:"₹30,500"
+},
+
+{
+name:"OPPO A6S 5G",
+ram:"4GB + 128GB",
+price:"₹21,500"
+},
+
+{
+name:"OPPO A6X 5G",
+ram:"4GB + 128GB",
+price:"₹19,500"
+},
+
+{
+name:"OPPO 6S 5G",
+ram:"6GB + 128GB",
+price:"₹23,500"
+}
+
+];
+
+const results = document.getElementById("results");
+
+function showPhones(list){
+
+results.innerHTML="";
+
+if(list.length===0){
+
+results.innerHTML=`
+<div class="not-found">
+❌ No Phone Found
+</div>
+`;
+
+return;
+}
+
+list.forEach(phone=>{
+
+results.innerHTML+=`
+
+<div class="card">
+
+<div class="phone-name">
+${phone.name}
+</div>
+
+<div class="storage">
+💾 ${phone.ram}
+</div>
+
+<div class="price">
+${phone.price}
+</div>
+
+</div>
+
+`;
+
+});
+
+}
+
+function searchPhone(){
+
+const value=document
+.getElementById("searchInput")
+.value
+.toLowerCase();
+
+const filtered=phones.filter(phone=>
+phone.name.toLowerCase().includes(value)
+);
+
+showPhones(filtered);
+
+}
+
+function quickSearch(text){
+
+document.getElementById("searchInput").value=text;
+
+searchPhone();
+
+}
+
+document
+.getElementById("searchBtn")
+.addEventListener("click",searchPhone);
+
+document
+.getElementById("searchInput")
+.addEventListener("input",searchPhone);
+
+showPhones(phones);
+
+</script>
+
+</body>
+</html>
