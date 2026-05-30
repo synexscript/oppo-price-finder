@@ -1,333 +1,130 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>OPPO Price Finder</title>
-
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IMEI Inventory</title>
 <style>
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:Arial,sans-serif;
-}
-
 body{
-background:#050816;
+font-family:-apple-system,Arial,sans-serif;
+background:#111827;
 color:white;
 padding:20px;
 }
-
 .container{
 max-width:500px;
 margin:auto;
 }
-
-.logo{
-width:120px;
-display:block;
-margin:auto;
-margin-bottom:10px;
-}
-
-.title{
+h2{
 text-align:center;
-font-size:28px;
-font-weight:bold;
-margin-bottom:20px;
 color:#00ffcc;
 }
-
-.search-box{
-background:#111827;
-padding:15px;
-border-radius:20px;
-margin-bottom:20px;
-}
-
-.search-box input{
+input{
 width:100%;
-padding:14px;
+padding:12px;
+margin:6px 0;
 border:none;
-border-radius:12px;
-background:#1e293b;
-color:white;
-font-size:16px;
-outline:none;
+border-radius:10px;
+box-sizing:border-box;
 }
-
-.search-box button{
+button{
 width:100%;
-padding:14px;
-margin-top:12px;
+padding:12px;
+margin-top:8px;
 border:none;
-border-radius:12px;
+border-radius:10px;
 background:#00ffcc;
 color:black;
-font-size:16px;
 font-weight:bold;
-cursor:pointer;
 }
-
-.results{
-display:flex;
-flex-direction:column;
-gap:15px;
-}
-
 .card{
-background:#111827;
-padding:18px;
-border-radius:20px;
-border:1px solid #1f2937;
-}
-
-.phone-name{
-font-size:20px;
-font-weight:bold;
-color:#00ffcc;
-}
-
-.storage{
-margin-top:10px;
-font-size:14px;
-color:#cbd5e1;
-}
-
-.price{
+background:#1f2937;
+padding:15px;
 margin-top:15px;
-font-size:26px;
-font-weight:bold;
-color:#a3ff12;
+border-radius:12px;
 }
-
-.not-found{
-text-align:center;
-padding:30px;
-background:#111827;
-border-radius:20px;
-}
-
-.suggestions{
-display:flex;
-gap:10px;
-flex-wrap:wrap;
-margin-bottom:20px;
-}
-
-.chip{
-background:#1e293b;
-padding:8px 14px;
-border-radius:30px;
-font-size:13px;
-cursor:pointer;
-}
-
-.footer{
-text-align:center;
-margin-top:30px;
-font-size:12px;
-color:#64748b;
+.hidden{
+display:none;
 }
 </style>
 </head>
-
 <body>
-
 <div class="container">
-
-<img class="logo"
-src="https://upload.wikimedia.org/wikipedia/commons/7/7a/OPPO_LOGO_2019.svg">
-
-<div class="title">
-OPPO PRICE FINDER
-</div>
-
-<div class="search-box">
-
+<h2>IMEI Inventory</h2>
 <input
-type="text"
-id="searchInput"
-placeholder="Search OPPO phone...">
-
-<button id="searchBtn">
-🔍 Search
+id="imei"
+placeholder="Scan or Enter IMEI">
+<button onclick="searchIMEI()">
+Search IMEI
 </button>
-
+<div id="saveSection" class="hidden">
+<input id="model" placeholder="Phone Model">
+<input id="ram" placeholder="RAM + Storage">
+<input id="price" placeholder="Price">
+<button onclick="savePhone()">
+Save Device
+</button>
 </div>
-
-<div class="suggestions">
-
-<div class="chip" onclick="quickSearch('reno')">
-Reno
+<div id="result"></div>
 </div>
-
-<div class="chip" onclick="quickSearch('f33')">
-F33
-</div>
-
-<div class="chip" onclick="quickSearch('a6')">
-A6
-</div>
-
-<div class="chip" onclick="quickSearch('6s')">
-6S
-</div>
-
-</div>
-
-<div class="results" id="results"></div>
-
-<div class="footer">
-OPPO Mobile Price Guide 2026
-</div>
-
-</div>
-
 <script>
-
-const phones = [
-
-{
-name:"OPPO Reno 15 C 5G",
-ram:"8GB + 256GB",
-price:"₹42,500"
-},
-
-{
-name:"OPPO Reno 15 5G",
-ram:"12GB + 512GB",
-price:"₹56,500"
-},
-
-{
-name:"OPPO Reno 15 Pro Mini",
-ram:"12GB + 256GB",
-price:"₹61,500"
-},
-
-{
-name:"OPPO F33 Pro 5G",
-ram:"8GB + 128GB",
-price:"₹38,500"
-},
-
-{
-name:"OPPO F33 Pro 5G",
-ram:"8GB + 256GB",
-price:"₹41,500"
-},
-
-{
-name:"OPPO F33 5G",
-ram:"8GB + 128GB",
-price:"₹35,500"
-},
-
-{
-name:"OPPO A6 Pro 5G",
-ram:"8GB + 256GB",
-price:"₹30,500"
-},
-
-{
-name:"OPPO A6S 5G",
-ram:"4GB + 128GB",
-price:"₹21,500"
-},
-
-{
-name:"OPPO A6X 5G",
-ram:"4GB + 128GB",
-price:"₹19,500"
-},
-
-{
-name:"OPPO 6S 5G",
-ram:"6GB + 128GB",
-price:"₹23,500"
-}
-
-];
-
-const results = document.getElementById("results");
-
-function showPhones(list){
-
-results.innerHTML="";
-
-if(list.length===0){
-
-results.innerHTML=`
-<div class="not-found">
-❌ No Phone Found
-</div>
-`;
-
+let inventory =
+JSON.parse(localStorage.getItem("inventory")) || {};
+function searchIMEI(){
+const imei =
+document.getElementById("imei").value.trim();
+const result =
+document.getElementById("result");
+if(!imei){
+alert("Enter IMEI");
 return;
 }
-
-list.forEach(phone=>{
-
-results.innerHTML+=`
-
+if(inventory[imei]){
+const p = inventory[imei];
+result.innerHTML = `
 <div class="card">
-
-<div class="phone-name">
-${phone.name}
+<h3>${p.model}</h3>
+<p>RAM: ${p.ram}</p>
+<p>Price: ${p.price}</p>
+<p>IMEI: ${imei}</p>
 </div>
-
-<div class="storage">
-💾 ${phone.ram}
-</div>
-
-<div class="price">
-${phone.price}
-</div>
-
-</div>
-
 `;
-
-});
-
+document
+.getElementById("saveSection")
+.classList.add("hidden");
+}else{
+result.innerHTML =
+"<div class='card'>IMEI Not Found. Add Details Below.</div>";
+document
+.getElementById("saveSection")
+.classList.remove("hidden");
 }
-
-function searchPhone(){
-
-const value=document
-.getElementById("searchInput")
-.value
-.toLowerCase();
-
-const filtered=phones.filter(phone=>
-phone.name.toLowerCase().includes(value)
+}
+function savePhone(){
+const imei =
+document.getElementById("imei").value.trim();
+const model =
+document.getElementById("model").value.trim();
+const ram =
+document.getElementById("ram").value.trim();
+const price =
+document.getElementById("price").value.trim();
+if(!imei || !model || !ram || !price){
+alert("Fill all fields");
+return;
+}
+inventory[imei] = {
+model:model,
+ram:ram,
+price:price
+};
+localStorage.setItem(
+"inventory",
+JSON.stringify(inventory)
 );
-
-showPhones(filtered);
-
+alert("Saved Successfully");
+searchIMEI();
 }
-
-function quickSearch(text){
-
-document.getElementById("searchInput").value=text;
-
-searchPhone();
-
-}
-
-document
-.getElementById("searchBtn")
-.addEventListener("click",searchPhone);
-
-document
-.getElementById("searchInput")
-.addEventListener("input",searchPhone);
-
-showPhones(phones);
-
 </script>
-
 </body>
 </html>
