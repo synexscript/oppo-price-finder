@@ -3,61 +3,58 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Mobile Inventory</title>
+<title>IMEI Scanner Inventory</title>
+<script src="https://unpkg.com/html5-qrcode"></script>
 <style>
 body{
-    font-family:-apple-system,sans-serif;
-    background:#0f172a;
-    color:white;
-    padding:15px;
-    margin:0;
+font-family:-apple-system,sans-serif;
+background:#0f172a;
+color:white;
+padding:15px;
 }
 .container{
-    max-width:600px;
-    margin:auto;
-}
-h1{
-    text-align:center;
-    color:#22d3ee;
-}
-.card{
-    background:#1e293b;
-    padding:15px;
-    border-radius:12px;
-    margin-bottom:15px;
-}
-input{
-    width:100%;
-    padding:12px;
-    margin:5px 0;
-    border:none;
-    border-radius:8px;
-    box-sizing:border-box;
+max-width:600px;
+margin:auto;
 }
 button{
-    width:100%;
-    padding:12px;
-    border:none;
-    border-radius:8px;
-    margin-top:8px;
-    font-weight:bold;
-    background:#22d3ee;
-    color:black;
+width:100%;
+padding:12px;
+margin-top:10px;
+border:none;
+border-radius:10px;
+background:#22d3ee;
+font-weight:bold;
 }
-.device{
-    background:#334155;
-    padding:12px;
-    border-radius:10px;
-    margin-top:10px;
+input{
+width:100%;
+padding:12px;
+margin-top:8px;
+border:none;
+border-radius:10px;
+box-sizing:border-box;
+}
+.card{
+background:#1e293b;
+padding:15px;
+margin-top:15px;
+border-radius:12px;
+}
+#reader{
+margin-top:15px;
+border-radius:12px;
+overflow:hidden;
 }
 </style>
 </head>
 <body>
 <div class="container">
-<h1>📱 Inventory Manager</h1>
-<div class="card">
-<h3>Add Device</h3>
-<input id="imei" placeholder="IMEI Number">
+<h2>📱 IMEI Inventory Scanner</h2>
+<button onclick="startScanner()">
+📷 Scan IMEI Barcode
+</button>
+<div id="reader"></div>
+<div id="result"></div>
+<div id="form" style="display:none;">
 <input id="model" placeholder="Model">
 <input id="ram" placeholder="RAM + Storage">
 <input id="price" placeholder="Price">
@@ -65,64 +62,64 @@ button{
 Save Device
 </button>
 </div>
-<div class="card">
-<h3>Search Device</h3>
-<input id="searchImei" placeholder="Enter IMEI">
-<button onclick="searchDevice()">
-Find Device
-</button>
-<div id="result"></div>
-</div>
 </div>
 <script>
+let currentIMEI = "";
 let inventory =
 JSON.parse(localStorage.getItem("inventory")) || {};
-function saveDevice(){
-const imei=document.getElementById("imei").value.trim();
-const model=document.getElementById("model").value.trim();
-const ram=document.getElementById("ram").value.trim();
-const price=document.getElementById("price").value.trim();
-if(!imei || !model || !ram || !price){
-alert("Fill all fields");
-return;
+function startScanner(){
+const scanner =
+new Html5Qrcode("reader");
+scanner.start(
+{ facingMode: "environment" },
+{
+fps:10,
+qrbox:250
+},
+function(decodedText){
+currentIMEI = decodedText;
+scanner.stop();
+checkIMEI(decodedText);
+},
+function(error){}
+);
 }
-inventory[imei]={
-model:model,
-ram:ram,
-price:price
+function checkIMEI(imei){
+const result =
+document.getElementById("result");
+if(inventory[imei]){
+const d = inventory[imei];
+result.innerHTML = `
+<div class="card">
+<h3>${d.model}</h3>
+<p>RAM: ${d.ram}</p>
+<p>Price: ${d.price}</p>
+<p>IMEI: ${imei}</p>
+</div>
+`;
+document.getElementById("form").style.display="none";
+}else{
+result.innerHTML = `
+<div class="card">
+New IMEI Detected:<br>
+${imei}
+</div>
+`;
+document.getElementById("form").style.display="block";
+}
+}
+function saveDevice(){
+inventory[currentIMEI] = {
+model:document.getElementById("model").value,
+ram:document.getElementById("ram").value,
+price:document.getElementById("price").value
 };
 localStorage.setItem(
 "inventory",
 JSON.stringify(inventory)
 );
-alert("Device Saved");
-document.getElementById("imei").value="";
-document.getElementById("model").value="";
-document.getElementById("ram").value="";
-document.getElementById("price").value="";
-}
-function searchDevice(){
-const imei=
-document.getElementById("searchImei").value.trim();
-const result=
-document.getElementById("result");
-if(inventory[imei]){
-const d=inventory[imei];
-result.innerHTML=`
-<div class="device">
-<b>Model:</b> ${d.model}<br>
-<b>RAM:</b> ${d.ram}<br>
-<b>Price:</b> ${d.price}<br>
-<b>IMEI:</b> ${imei}
-</div>
-`;
-}else{
-result.innerHTML=`
-<div class="device">
-Device Not Found
-</div>
-`;
-}
+alert("Saved");
+checkIMEI(currentIMEI);
 }
 </script>
 </body>
